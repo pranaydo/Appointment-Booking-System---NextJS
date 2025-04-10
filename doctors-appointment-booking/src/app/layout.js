@@ -37,16 +37,31 @@ export const metadata = {
 // import Sidebar from "@/components/SideNav";
 // import TopNav from "@/components/TopNav"; // ✅ Import it here
 
+// export default function RootLayout({ children }) {
+
+//   return (
+//     <html lang="en">
+//       <body className="antialiased">
+//         <div className="flex min-h-screen">
+//           <Sidebar />
+//           <div className="flex-1 flex flex-col">
+//             <TopNav /> 
+//             <main className="flex-1 p-4">{children}</main>
+//           </div>
+//         </div>
+//       </body>
+//     </html>
+//   );
+// }
+
+// layout.js
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <div className="flex min-h-screen">
+      <body className="h-screen overflow-hidden">
+        <div className="flex h-full">
           <Sidebar />
-          <div className="flex-1 flex flex-col">
-            <TopNav /> 
-            <main className="flex-1 p-4">{children}</main>
-          </div>
+          <main className="flex-1 h-full overflow-auto">{children}</main>
         </div>
       </body>
     </html>
