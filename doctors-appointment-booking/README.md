@@ -43,3 +43,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 chnage the directory - cd dir name 
 start the project using npm run dev 
 
+
+first Added Created folder Named component
+inside component creadted sidenav.js And calling this component in Layout.js
+Again created topnav and calling after sidenav
+so the basic strucre is created now i am ready to create Calender Component
+
