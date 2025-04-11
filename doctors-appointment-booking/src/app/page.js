@@ -1,6 +1,7 @@
 'use client';
 import Calendar from '@/components/calendar/Calendar';
 import CalendarHeader from '@/components/CalendarHeader';
+import { ContextProvider } from '@/components/Context/AppointmentContext';
 
 import { useState } from 'react';
 
@@ -12,12 +13,14 @@ export default function HomePage() {
 
   const appointments = [/*...same mock data as before*/];
   return (
-    <div className="flex flex-col h-full max-h-screen bg-white">
-      <CalendarHeader />
-      <div>
-        <Calendar />
-      </div>
+    <ContextProvider >
+      <div className="flex flex-col h-full max-h-screen bg-white">
+        <CalendarHeader />
+        <div>
+          <Calendar />
+        </div>
 
-    </div>
+      </div>
+    </ContextProvider>
   );
 }
