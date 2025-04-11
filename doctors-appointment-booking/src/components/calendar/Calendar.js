@@ -4,10 +4,8 @@ import CalendarGrid from './CalendarGrid';
 
 export default function Calendar() {
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="p-4 max-w-7xl mx-auto  overflow-hidden">
       <CalendarHeader />
-      <CalendarGrid />
-      {/* <Legend /> */}
     </div>
   );
 }
