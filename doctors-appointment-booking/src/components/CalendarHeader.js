@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
-export default function Header() {
+export default function CalendarHeader() {
 
 
   const onRangeChange = (dates, dateStrings) => {

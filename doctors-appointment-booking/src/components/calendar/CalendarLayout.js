@@ -10,7 +10,7 @@ for (let h = 9; h <= 16; h++) {
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-export default function CalendarHeader() {
+export default function CalendarLayout() {
   return (
     <div className="w-full overflow-x-auto">
       <div className="grid grid-cols-[70px_repeat(7,minmax(80px,1fr))] text-sm">

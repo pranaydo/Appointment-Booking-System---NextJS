@@ -1,6 +1,6 @@
 'use client';
 import Calendar from '@/components/calendar/Calendar';
-import Header from '@/components/Header';
+import CalendarHeader from '@/components/CalendarHeader';
 
 import { useState } from 'react';
 
@@ -13,7 +13,7 @@ export default function HomePage() {
   const appointments = [/*...same mock data as before*/];
   return (
     <div className="flex flex-col h-full max-h-screen bg-white">
-      <Header />
+      <CalendarHeader />
       <div>
         <Calendar />
       </div>
