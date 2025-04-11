@@ -13,26 +13,27 @@ import {
 import { ClockCircleOutlined } from "@ant-design/icons";
 import { useAppointmentContext } from "../Context/AppointmentContext";
 
-export default function AppointmentModal({ isModalOpen, setIsModalOpen, selectedSlot }) {
+export default function AppointmentModal({ isModalOpen, setIsModalOpen, selectedSlot,setSelectedSlot }) {
   const [form] = Form.useForm();
   const { allAppointments, setAllAppointments } = useAppointmentContext();
 
   const handleFinish = (values) => {
-    console.log("Form values:", values);
-
-
     const newAppointment = {
-        ...values,
-        slot: selectedSlot || null,
-        id: Date.now(), // optional unique id
-      };
-    
-      setAllAppointments([...allAppointments, newAppointment]);    form.resetFields();
+      ...values,
+      slot: selectedSlot || null,
+      id: Date.now(),
+      startTime: values.startTime?.format("HH:mm"),
+      endTime: values.endTime?.format("HH:mm"),
+    };
+  
+    setAllAppointments((prev) => [...prev, newAppointment]);
+    setSelectedSlot('')
     setIsModalOpen(false);
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setSelectedSlot('')
     setIsModalOpen(false);
   };
 
