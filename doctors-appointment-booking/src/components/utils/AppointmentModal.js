@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   Input,
@@ -9,39 +9,85 @@ import {
   TimePicker,
   Button,
   Form,
+  Space,
+  message
 } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import { useAppointmentContext } from "../Context/AppointmentContext";
 
-export default function AppointmentModal({ isModalOpen, setIsModalOpen, selectedSlot,setSelectedSlot }) {
+export default function AppointmentModal({ isModalOpen, setIsModalOpen, selectedSlot, setSelectedSlot }) {
   const [form] = Form.useForm();
   const { allAppointments, setAllAppointments } = useAppointmentContext();
 
+  const currentAppointment = allAppointments.find(
+    (appt) => appt.slot?.day === selectedSlot?.day && appt.slot?.time === selectedSlot?.time
+  );
+
+  // Fill form with existing data if editing
+  useEffect(() => {
+    if (isModalOpen && currentAppointment) {
+      form.setFieldsValue({
+        name: currentAppointment.name,
+        category: currentAppointment.category,
+        doctor: currentAppointment.doctor,
+        startTime: currentAppointment.startTime ? dayjs(currentAppointment.startTime, "HH:mm") : null,
+        endTime: currentAppointment.endTime ? dayjs(currentAppointment.endTime, "HH:mm") : null,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [isModalOpen, currentAppointment, form]);
+
   const handleFinish = (values) => {
-    const newAppointment = {
+    const updatedAppointment = {
       ...values,
       slot: selectedSlot || null,
-      id: Date.now(),
+      id: currentAppointment?.id || Date.now(),
       startTime: values.startTime?.format("HH:mm"),
       endTime: values.endTime?.format("HH:mm"),
     };
-  
-    setAllAppointments((prev) => [...prev, newAppointment]);
-    setSelectedSlot('')
-    setIsModalOpen(false);
+
+    if (currentAppointment) {
+      // Update appointment
+      setAllAppointments((prev) =>
+        prev.map((appt) =>
+          appt.id === currentAppointment.id ? updatedAppointment : appt
+        )
+      );
+      message.success("Appointment updated");
+    } else {
+      // Add new appointment
+      setAllAppointments((prev) => [...prev, updatedAppointment]);
+      message.success("Appointment created");
+    }
+
+    handleClose();
   };
 
-  const handleCancel = () => {
+  const handleDelete = () => {
+    setAllAppointments((prev) =>
+      prev.filter((appt) => appt.id !== currentAppointment.id)
+    );
+    message.success("Appointment deleted");
+    handleClose();
+  };
+
+  const handleClose = () => {
     form.resetFields();
-    setSelectedSlot('')
+    setSelectedSlot('');
     setIsModalOpen(false);
   };
 
   return (
     <Modal
-      title={<span className="text-lg font-semibold">MAKE NEW APPOINTMENT</span>}
+      title={
+        <span className="text-lg font-semibold">
+          {currentAppointment ? "EDIT APPOINTMENT" : "MAKE NEW APPOINTMENT"}
+        </span>
+      }
       open={isModalOpen}
-      onCancel={handleCancel}
+      onCancel={handleClose}
       footer={null}
       centered
     >
@@ -50,7 +96,6 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
         layout="vertical"
         onFinish={handleFinish}
       >
-        {/* Name */}
         <Form.Item
           label="NAME"
           name="name"
@@ -59,7 +104,6 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
           <Input placeholder="Enter name" className="rounded-full" />
         </Form.Item>
 
-        {/* Category */}
         <Form.Item
           label="CATEGORIES"
           name="category"
@@ -75,7 +119,6 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
           />
         </Form.Item>
 
-        {/* Doctor */}
         <Form.Item
           label="DOCTORS"
           name="doctor"
@@ -91,7 +134,6 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
           />
         </Form.Item>
 
-        {/* Start and End Time */}
         <div className="flex justify-between gap-3">
           <Form.Item
             className="w-1/2"
@@ -121,14 +163,24 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
         </div>
 
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            block
-            className="mt-2 rounded-full bg-blue-700 hover:bg-blue-800"
-          >
-            MAKE NEW APPOINTMENT
-          </Button>
+          <Space className="w-full justify-between flex-wrap">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="rounded-full bg-blue-700 hover:bg-blue-800 w-full sm:w-[70%]"
+            >
+              {currentAppointment ? "UPDATE" : "MAKE NEW APPOINTMENT"}
+            </Button>
+            {currentAppointment && (
+              <Button
+                danger
+                className="rounded-full w-full "
+                onClick={handleDelete}
+              >
+                DELETE
+              </Button>
+            )}
+          </Space>
         </Form.Item>
       </Form>
     </Modal>

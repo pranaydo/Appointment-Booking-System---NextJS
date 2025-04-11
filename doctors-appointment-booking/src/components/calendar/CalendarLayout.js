@@ -14,20 +14,22 @@ const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export default function BookingCalendar() {
   const [selectedSlot, setSelectedSlot] = useState({ day: "", time: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null); 
 
   const { allAppointments } = useAppointmentContext();
-  console.log(allAppointments);
-  
 
   const handleSlotClick = (day, time) => {
+    const foundAppt = allAppointments.find(
+      (appt) => appt.slot?.day === day && appt.slot?.time === time
+    );
     setSelectedSlot({ day, time });
+    setEditingAppointment(foundAppt || null); // appointment hai to
     setIsModalOpen(true);
   };
 
   return (
     <div className="w-full max-h-[80vh] overflow-auto border border-gray-200 rounded-lg">
       <div className="min-w-[600px] grid grid-cols-[70px_repeat(7,minmax(80px,1fr))] text-sm">
-        {/* Header row */}
         <div className="border border-gray-200 bg-white h-10 sticky top-0 z-20"></div>
         {days.map((day) => (
           <div
@@ -38,19 +40,14 @@ export default function BookingCalendar() {
           </div>
         ))}
 
-        {/* Time slots */}
         {hours.map((time) => (
           <React.Fragment key={time}>
-            {/* Time label */}
             <div className="border border-gray-200 bg-white text-center p-2 font-medium sticky left-0 z-10">
               {time}
             </div>
 
-            {/* Slots for each day */}
             {days.map((day, idx) => {
               const isSelected = selectedSlot.day === day && selectedSlot.time === time;
-
-              // Find if appointment exists for this slot
               const appointment = allAppointments.find(
                 (appt) => appt.slot?.day === day && appt.slot?.time === time
               );
@@ -82,12 +79,13 @@ export default function BookingCalendar() {
         ))}
       </div>
 
-      {/* Modal for creating new appointment */}
       <AppointmentModal
         selectedSlot={selectedSlot}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-      setSelectedSlot={setSelectedSlot}
+        setSelectedSlot={setSelectedSlot}
+        editingAppointment={editingAppointment} 
+        setEditingAppointment={setEditingAppointment}
       />
     </div>
   );
