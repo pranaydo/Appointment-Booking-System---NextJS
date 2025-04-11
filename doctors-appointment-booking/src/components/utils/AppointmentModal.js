@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect } from "react";
@@ -10,29 +9,49 @@ import {
   Button,
   Form,
   Space,
-  message
+  message,
+  notification,
 } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAppointmentContext } from "../Context/AppointmentContext";
 
-export default function AppointmentModal({ isModalOpen, setIsModalOpen, selectedSlot, setSelectedSlot }) {
+export default function AppointmentModal({
+  isModalOpen,
+  setIsModalOpen,
+  selectedSlot,
+  setSelectedSlot,
+}) {
   const [form] = Form.useForm();
   const { allAppointments, setAllAppointments } = useAppointmentContext();
 
   const currentAppointment = allAppointments.find(
-    (appt) => appt.slot?.day === selectedSlot?.day && appt.slot?.time === selectedSlot?.time
+    (appt) =>
+      appt.slot?.day === selectedSlot?.day &&
+      appt.slot?.time === selectedSlot?.time
   );
 
-  // Fill form with existing data if editing
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = (type, message, description) => {
+    api[type]({
+      message,
+      description,
+    });
+  };
+
   useEffect(() => {
     if (isModalOpen && currentAppointment) {
       form.setFieldsValue({
         name: currentAppointment.name,
         category: currentAppointment.category,
         doctor: currentAppointment.doctor,
-        startTime: currentAppointment.startTime ? dayjs(currentAppointment.startTime, "HH:mm") : null,
-        endTime: currentAppointment.endTime ? dayjs(currentAppointment.endTime, "HH:mm") : null,
+        startTime: currentAppointment.startTime
+          ? dayjs(currentAppointment.startTime, "HH:mm")
+          : null,
+        endTime: currentAppointment.endTime
+          ? dayjs(currentAppointment.endTime, "HH:mm")
+          : null,
       });
     } else {
       form.resetFields();
@@ -49,17 +68,23 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
     };
 
     if (currentAppointment) {
-      // Update appointment
       setAllAppointments((prev) =>
         prev.map((appt) =>
           appt.id === currentAppointment.id ? updatedAppointment : appt
         )
       );
-      message.success("Appointment updated");
+      openNotificationWithIcon(
+        "success",
+        "Appointment Updated",
+        "Your appointment was successfully updated."
+      );
     } else {
-      // Add new appointment
       setAllAppointments((prev) => [...prev, updatedAppointment]);
-      message.success("Appointment created");
+      openNotificationWithIcon(
+        "success",
+        "Appointment Created",
+        "Your new appointment was successfully scheduled."
+      );
     }
 
     handleClose();
@@ -69,120 +94,123 @@ export default function AppointmentModal({ isModalOpen, setIsModalOpen, selected
     setAllAppointments((prev) =>
       prev.filter((appt) => appt.id !== currentAppointment.id)
     );
-    message.success("Appointment deleted");
+    openNotificationWithIcon(
+      "error",
+      "Appointment Deleted",
+      "Your new appointment was successfully deleted."
+    );
     handleClose();
   };
 
   const handleClose = () => {
     form.resetFields();
-    setSelectedSlot('');
+    setSelectedSlot("");
     setIsModalOpen(false);
   };
 
   return (
-    <Modal
-      title={
-        <span className="text-lg font-semibold">
-          {currentAppointment ? "EDIT APPOINTMENT" : "MAKE NEW APPOINTMENT"}
-        </span>
-      }
-      open={isModalOpen}
-      onCancel={handleClose}
-      footer={null}
-      centered
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleFinish}
+    <>
+      {contextHolder}
+      <Modal
+        title={
+          <span className="text-lg font-semibold">
+            {currentAppointment ? "EDIT APPOINTMENT" : "MAKE NEW APPOINTMENT"}
+          </span>
+        }
+        open={isModalOpen}
+        onCancel={handleClose}
+        footer={null}
+        centered
       >
-        <Form.Item
-          label="NAME"
-          name="name"
-          rules={[{ required: true, message: "Please enter your name" }]}
-        >
-          <Input placeholder="Enter name" className="rounded-full" />
-        </Form.Item>
-
-        <Form.Item
-          label="CATEGORIES"
-          name="category"
-          rules={[{ required: true, message: "Please select a category" }]}
-        >
-          <Select
-            placeholder="Select category"
-            className="w-full rounded-full"
-            options={[
-              { label: "Consultation", value: "consultation" },
-              { label: "Follow-up", value: "followup" },
-            ]}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="DOCTORS"
-          name="doctor"
-          rules={[{ required: true, message: "Please select a doctor" }]}
-        >
-          <Select
-            placeholder="Select doctor"
-            className="w-full rounded-full"
-            options={[
-              { label: "Dr. Smith", value: "smith" },
-              { label: "Dr. Jane", value: "jane" },
-            ]}
-          />
-        </Form.Item>
-
-        <div className="flex justify-between gap-3">
+        <Form form={form} layout="vertical" onFinish={handleFinish}>
           <Form.Item
-            className="w-1/2"
-            label="START TIME"
-            name="startTime"
-            rules={[{ required: true, message: "Select start time" }]}
+            label="NAME"
+            name="name"
+            rules={[{ required: true, message: "Please enter your name" }]}
           >
-            <TimePicker
-              className="w-full"
-              suffixIcon={<ClockCircleOutlined />}
-              format="HH:mm"
+            <Input placeholder="Enter name" className="rounded-full" />
+          </Form.Item>
+
+          <Form.Item
+            label="CATEGORIES"
+            name="category"
+            rules={[{ required: true, message: "Please select a category" }]}
+          >
+            <Select
+              placeholder="Select category"
+              className="w-full rounded-full"
+              options={[
+                { label: "Consultation", value: "consultation" },
+                { label: "Follow-up", value: "followup" },
+              ]}
             />
           </Form.Item>
 
           <Form.Item
-            className="w-1/2"
-            label="END TIME"
-            name="endTime"
-            rules={[{ required: true, message: "Select end time" }]}
+            label="DOCTORS"
+            name="doctor"
+            rules={[{ required: true, message: "Please select a doctor" }]}
           >
-            <TimePicker
-              className="w-full"
-              suffixIcon={<ClockCircleOutlined />}
-              format="HH:mm"
+            <Select
+              placeholder="Select doctor"
+              className="w-full rounded-full"
+              options={[
+                { label: "Dr. Smith", value: "smith" },
+                { label: "Dr. Jane", value: "jane" },
+              ]}
             />
           </Form.Item>
-        </div>
 
-        <Form.Item>
-          <Space className="w-full justify-between flex-wrap">
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="rounded-full bg-blue-700 hover:bg-blue-800 w-full sm:w-[70%]"
+          <div className="flex justify-between gap-3">
+            <Form.Item
+              className="w-1/2"
+              label="START TIME"
+              name="startTime"
+              rules={[{ required: true, message: "Select start time" }]}
             >
-              {currentAppointment ? "UPDATE" : "MAKE NEW APPOINTMENT"}
-            </Button>
-            {currentAppointment && (
+              <TimePicker
+                className="w-full"
+                suffixIcon={<ClockCircleOutlined />}
+                format="HH:mm"
+              />
+            </Form.Item>
+
+            <Form.Item
+              className="w-1/2"
+              label="END TIME"
+              name="endTime"
+              rules={[{ required: true, message: "Select end time" }]}
+            >
+              <TimePicker
+                className="w-full"
+                suffixIcon={<ClockCircleOutlined />}
+                format="HH:mm"
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item>
+            <Space className="w-full justify-between flex-wrap">
               <Button
-                danger
-                className="rounded-full w-full "
-                onClick={handleDelete}
+                type="primary"
+                htmlType="submit"
+                className="rounded-full bg-blue-700 hover:bg-blue-800 w-full "
               >
-                DELETE
+                {currentAppointment ? "UPDATE" : "MAKE NEW APPOINTMENT"}
               </Button>
-            )}
-          </Space>
-        </Form.Item>
-      </Form>
-    </Modal>
+              {currentAppointment && (
+                <Button
+                  danger
+                  className="rounded-full w-full mt-2"
+                  onClick={handleDelete}
+                >
+                  DELETE
+                </Button>
+              )}
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 }
