@@ -54,7 +54,7 @@ export default function CalendarHeader({ view, setView,dateRange, setDateRange }
             onChange={(e) => setView(e.target.value)}
             style={{ marginBottom: 16 }}
           >
-            <Radio.Button value="DAY">DAY</Radio.Button>
+            <Radio.Button disabled value="DAY">DAY</Radio.Button>
             <Radio.Button value="WEEK">WEEK</Radio.Button>
             <Radio.Button value="MONTH">MONTH</Radio.Button>
           </Radio.Group>
