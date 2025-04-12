@@ -9,7 +9,6 @@ import {
   Button,
   Form,
   Space,
-  message,
   notification,
 } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
@@ -21,91 +20,69 @@ export default function AppointmentModal({
   isModalOpen,
   setIsModalOpen,
   selectedSlot,
-  setSelectedSlot,
+  editingAppointment,
+  setEditingAppointment,
 }) {
   const [form] = Form.useForm();
   const { allAppointments, setAllAppointments } = useAppointmentContext();
-
-  const currentAppointment = allAppointments.find(
-    (appt) =>
-      appt.slot?.day === selectedSlot?.day &&
-      appt.slot?.time === selectedSlot?.time
-  );
-
   const [api, contextHolder] = notification.useNotification();
 
-  const openNotificationWithIcon = (type, message, description) => {
-    api[type]({
-      message,
-      description,
-    });
-  };
-
   useEffect(() => {
-    if (isModalOpen && currentAppointment) {
+    if (isModalOpen && editingAppointment) {
       form.setFieldsValue({
-        name: currentAppointment.name,
-        category: currentAppointment.category,
-        doctor: currentAppointment.doctor,
-        startTime: currentAppointment.startTime
-          ? dayjs(currentAppointment.startTime, "HH:mm")
+        name: editingAppointment.name,
+        category: editingAppointment.category,
+        doctor: editingAppointment.doctor,
+        startTime: editingAppointment.startTime
+          ? dayjs(editingAppointment.startTime, "HH:mm")
           : null,
-        endTime: currentAppointment.endTime
-          ? dayjs(currentAppointment.endTime, "HH:mm")
+        endTime: editingAppointment.endTime
+          ? dayjs(editingAppointment.endTime, "HH:mm")
           : null,
       });
     } else {
       form.resetFields();
     }
-  }, [isModalOpen, currentAppointment, form]);
+  }, [isModalOpen, editingAppointment, form]);
 
   const handleFinish = (values) => {
     const updatedAppointment = {
       ...values,
-      slot: selectedSlot || null,
-      id: currentAppointment?.id || Date.now(),
+      slot: {
+        date: selectedSlot.date,
+        time: selectedSlot.time
+      },
+      id: editingAppointment?.id || Date.now(),
       startTime: values.startTime?.format("HH:mm"),
       endTime: values.endTime?.format("HH:mm"),
     };
 
-    if (currentAppointment) {
-      setAllAppointments((prev) =>
-        prev.map((appt) =>
-          appt.id === currentAppointment.id ? updatedAppointment : appt
-        )
-      );
-      openNotificationWithIcon(
-        "success",
-        "Appointment Updated",
-        "Your appointment was successfully updated."
-      );
+    if (editingAppointment) {
+      setAllAppointments(prev => prev.map(appt => appt.id === editingAppointment.id ? updatedAppointment : appt))
     } else {
-      setAllAppointments((prev) => [...prev, updatedAppointment]);
-      openNotificationWithIcon(
-        "success",
-        "Appointment Created",
-        "Your new appointment was successfully scheduled."
-      );
+      setAllAppointments(prev => [...prev, updatedAppointment]);
     }
+
+    notification.success({
+      message: editingAppointment ? "Appointment Updated" : "Appointment Created",
+      description: `Appointment was successfully ${editingAppointment ? 'updated' : 'created'}.`
+    });
 
     handleClose();
   };
 
   const handleDelete = () => {
-    setAllAppointments((prev) =>
-      prev.filter((appt) => appt.id !== currentAppointment.id)
-    );
-    openNotificationWithIcon(
-      "error",
-      "Appointment Deleted",
-      "Your new appointment was successfully deleted."
-    );
+    setAllAppointments(prev => prev.filter(appt => appt.id !== editingAppointment.id));
+    notification.success({
+      message: "Appointment Deleted",
+      description: "Appointment was successfully deleted."
+    });
     handleClose();
   };
 
   const handleClose = () => {
     form.resetFields();
-    setSelectedSlot("");
+    setEditingAppointment(null);
     setIsModalOpen(false);
   };
 
@@ -113,11 +90,7 @@ export default function AppointmentModal({
     <>
       {contextHolder}
       <Modal
-        title={
-          <span className="text-lg font-semibold">
-            {currentAppointment ? "EDIT APPOINTMENT" : "MAKE NEW APPOINTMENT"}
-          </span>
-        }
+        title={editingAppointment ? "EDIT APPOINTMENT" : "NEW APPOINTMENT"}
         open={isModalOpen}
         onCancel={handleClose}
         footer={null}
@@ -127,19 +100,18 @@ export default function AppointmentModal({
           <Form.Item
             label="NAME"
             name="name"
-            rules={[{ required: true, message: "Please enter your name" }]}
+            rules={[{ required: true }]}
           >
-            <Input placeholder="Enter name" className="rounded-full" />
+            <Input placeholder="Enter name" />
           </Form.Item>
 
           <Form.Item
-            label="CATEGORIES"
+            label="CATEGORY"
             name="category"
-            rules={[{ required: true, message: "Please select a category" }]}
+            rules={[{ required: true }]}
           >
             <Select
               placeholder="Select category"
-              className="w-full rounded-full"
               options={[
                 { label: "Consultation", value: "consultation" },
                 { label: "Follow-up", value: "followup" },
@@ -148,60 +120,43 @@ export default function AppointmentModal({
           </Form.Item>
 
           <Form.Item
-            label="DOCTORS"
+            label="DOCTOR"
             name="doctor"
-            rules={[{ required: true, message: "Please select a doctor" }]}
+            rules={[{ required: true }]}
           >
             <Select
               placeholder="Select doctor"
-              className="w-full rounded-full"
               options={dummyDoctors}
             />
           </Form.Item>
 
-          <div className="flex justify-between gap-3">
+          <div className="flex gap-3">
             <Form.Item
-              className="w-1/2"
               label="START TIME"
               name="startTime"
-              rules={[{ required: true, message: "Select start time" }]}
+              rules={[{ required: true }]}
+              className="flex-1"
             >
-              <TimePicker
-                className="w-full"
-                suffixIcon={<ClockCircleOutlined />}
-                format="HH:mm"
-              />
+              <TimePicker format="HH:mm" className="w-full" />
             </Form.Item>
 
             <Form.Item
-              className="w-1/2"
               label="END TIME"
               name="endTime"
-              rules={[{ required: true, message: "Select end time" }]}
+              rules={[{ required: true }]}
+              className="flex-1"
             >
-              <TimePicker
-                className="w-full"
-                suffixIcon={<ClockCircleOutlined />}
-                format="HH:mm"
-              />
+              <TimePicker format="HH:mm" className="w-full" />
             </Form.Item>
           </div>
 
           <Form.Item>
-            <Space className="w-full justify-between flex-wrap">
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="rounded-full bg-blue-700 hover:bg-blue-800 w-full "
-              >
-                {currentAppointment ? "UPDATE" : "MAKE NEW APPOINTMENT"}
+            <Space className="w-full justify-between">
+              <Button type="primary" htmlType="submit" block>
+                {editingAppointment ? "UPDATE" : "CREATE"}
               </Button>
-              {currentAppointment && (
-                <Button
-                  danger
-                  className="rounded-full w-full mt-2"
-                  onClick={handleDelete}
-                >
+              {editingAppointment && (
+                <Button danger onClick={handleDelete} block>
                   DELETE
                 </Button>
               )}

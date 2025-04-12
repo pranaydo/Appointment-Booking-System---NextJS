@@ -1,5 +1,3 @@
-// components/calendar/CalendarLayout.js
-
 'use client';
 
 import React, { useState } from "react";
@@ -8,31 +6,35 @@ import { useAppointmentContext } from "../Context/AppointmentContext";
 import MonthView from "./view/MonthlyView";
 import WeekView from "./view/WeeklyView";
 
-
-export default function CalendarLayout({ view ,dateRange }) {
-  const [selectedSlot, setSelectedSlot] = useState({ day: "", time: "" });
+export default function CalendarLayout({ view, dateRange }) {
+  const [selectedSlot, setSelectedSlot] = useState({ date: "", time: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
   const { allAppointments } = useAppointmentContext();
+
+  const handleSlotSelection = (date, time) => {
+    const dateStr = date.format ? date.format("YYYY-MM-DD") : date;
+    const foundAppt = allAppointments.find(
+      appt => appt.slot?.date === dateStr && appt.slot?.time === time
+    );
+    
+    setSelectedSlot({ date: dateStr, time });
+    setEditingAppointment(foundAppt || null);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="w-full border border-gray-200 rounded-lg p-2">
       {view === "WEEK" ? (
         <WeekView
-            allAppointments={allAppointments}
-            selectedSlot={selectedSlot}
-            setSelectedSlot={setSelectedSlot}
-            setIsModalOpen={setIsModalOpen}
-            setEditingAppointment={setEditingAppointment}
-            dateRange={dateRange}
-/>
+          allAppointments={allAppointments}
+          onSlotClick={handleSlotSelection}
+          dateRange={dateRange}
+        />
       ) : (
         <MonthView
           allAppointments={allAppointments}
-          selectedSlot={selectedSlot}
-          setSelectedSlot={setSelectedSlot}
-          setIsModalOpen={setIsModalOpen}
-          setEditingAppointment={setEditingAppointment}
+          onSlotClick={handleSlotSelection}
         />
       )}
 
@@ -40,7 +42,6 @@ export default function CalendarLayout({ view ,dateRange }) {
         selectedSlot={selectedSlot}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        setSelectedSlot={setSelectedSlot}
         editingAppointment={editingAppointment}
         setEditingAppointment={setEditingAppointment}
       />

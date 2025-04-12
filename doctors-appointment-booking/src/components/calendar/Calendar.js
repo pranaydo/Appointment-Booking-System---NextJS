@@ -6,7 +6,7 @@ import CalendarLayout from './CalendarLayout';
 import dayjs from 'dayjs';
 
 export default function Calendar() {
-  const [view, setView] = useState('WEEK');
+  const [view, setView] = useState('MONTH');
   const [dateRange, setDateRange] = useState([
     dayjs().startOf("week"),
     dayjs().endOf("week"),
