@@ -48,7 +48,11 @@ export default function Header() {
           <circle cx="18" cy="8" r="3" />
         </svg></div>
 
-        <div className="w-8 h-8 bg-gray-300 rounded-full" />
+        {/* <div className="w-8 h-8 bg-gray-300 rounded-full text-center" ><span className="">OB</span></div> */}
+        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium text-purple-700 font-semibold">
+  <span>OB</span>
+</div>
+
         <div className="text-left">
           <div className="text-sm font-medium text-gray-800">Ola Boluwatife</div>
           <div className="text-xs text-purple-700 font-semibold">PATIENT</div>

@@ -15,6 +15,7 @@ import {
 import { ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAppointmentContext } from "../Context/AppointmentContext";
+import { dummyDoctors } from "./DummyDoctorsList";
 
 export default function AppointmentModal({
   isModalOpen,
@@ -154,10 +155,7 @@ export default function AppointmentModal({
             <Select
               placeholder="Select doctor"
               className="w-full rounded-full"
-              options={[
-                { label: "Dr. Smith", value: "smith" },
-                { label: "Dr. Jane", value: "jane" },
-              ]}
+              options={dummyDoctors}
             />
           </Form.Item>
 
