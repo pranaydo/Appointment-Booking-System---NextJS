@@ -9,7 +9,7 @@ import MonthView from "./view/MonthlyView";
 import WeekView from "./view/WeeklyView";
 
 
-export default function CalendarLayout({ view }) {
+export default function CalendarLayout({ view ,dateRange }) {
   const [selectedSlot, setSelectedSlot] = useState({ day: "", time: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
@@ -19,12 +19,13 @@ export default function CalendarLayout({ view }) {
     <div className="w-full border border-gray-200 rounded-lg p-2">
       {view === "WEEK" ? (
         <WeekView
-          allAppointments={allAppointments}
-          selectedSlot={selectedSlot}
-          setSelectedSlot={setSelectedSlot}
-          setIsModalOpen={setIsModalOpen}
-          setEditingAppointment={setEditingAppointment}
-        />
+            allAppointments={allAppointments}
+            selectedSlot={selectedSlot}
+            setSelectedSlot={setSelectedSlot}
+            setIsModalOpen={setIsModalOpen}
+            setEditingAppointment={setEditingAppointment}
+            dateRange={dateRange}
+/>
       ) : (
         <MonthView
           allAppointments={allAppointments}

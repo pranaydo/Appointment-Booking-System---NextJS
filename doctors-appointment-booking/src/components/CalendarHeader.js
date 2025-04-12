@@ -4,18 +4,33 @@ import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
-export default function CalendarHeader({ view, setView }) {
+export default function CalendarHeader({ view, setView,dateRange, setDateRange }) {
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
       console.log('From: ', dates[0], ', to: ', dates[1]);
+      setDateRange(dates);
     }
   };
 
   const rangePresets = [
-    { label: 'Last 7 Days', value: [dayjs().add(-7, 'd'), dayjs()] },
-    { label: 'Last 14 Days', value: [dayjs().add(-14, 'd'), dayjs()] },
-    { label: 'Last 30 Days', value: [dayjs().add(-30, 'd'), dayjs()] },
-    { label: 'Last 90 Days', value: [dayjs().add(-90, 'd'), dayjs()] },
+    {
+      label: "This Week",
+      value: [dayjs().startOf("week"), dayjs().endOf("week")],
+    },
+    {
+      label: "Next Week",
+      value: [
+        dayjs().startOf("week").add(1, "week"),
+        dayjs().endOf("week").add(1, "week"),
+      ],
+    },
+    {
+      label: "Next to Next Week",
+      value: [
+        dayjs().startOf("week").add(2, "week"),
+        dayjs().endOf("week").add(2, "week"),
+      ],
+    },
   ];
 
   return (
